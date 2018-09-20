@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: sal-service
+    namespace: sal
+spec:
+    selector:
+        app: sal
+        env: production
+    ports:
+    - name: default
+      port: 8000
+      targetPort: 8000

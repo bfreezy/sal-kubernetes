@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sal-server
+  namespace: sal
+data:
+  DB_NAME: # use RDS or other cloud provider endpoint or kubernetes postgres service endpoint
+  DB_PORT: '5432'
+  DOCKER_SAL_TZ: America/Chicago

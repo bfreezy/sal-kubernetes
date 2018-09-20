@@ -1,0 +1,75 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sal-server
+  namespace: sal
+  labels:
+    app: sal
+    env: production
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  minReadySeconds: 15
+  template:
+    metadata:
+      labels:
+        app: sal
+        env: production
+    spec:
+      containers:
+      - image: macadmins/sal:3.3.10
+        name: sal-server
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ADMIN_PASS
+          valueFrom:
+            secretKeyRef:
+              name: sal-server
+              key: ADMIN_PASS
+
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: sal-server
+              key: DB_HOST
+
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: sal-server
+              key: DB_PORT
+
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: sal-server
+              key: DB_NAME
+
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: sal-server
+              key: DB_USER
+
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: sal-server
+              key: DB_PASS
+
+        - name: DOCKER_SAL_TZ
+          valueFrom:
+            configMapKeyRef:
+              name: sal-server
+              key: DOCKER_SAL_TZ
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            memory: 512Mi

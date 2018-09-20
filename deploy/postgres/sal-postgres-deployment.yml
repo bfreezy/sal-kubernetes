@@ -1,0 +1,70 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sal-postgres
+  namespace: sal
+  labels:
+    app: sal-db
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: sal-db
+    tier: postgres
+  clusterIP: None
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sal-postgres-pv-claim
+  namespace: sal
+  labels:
+    app: sal-db
+  # Uncomment annotations below if you have another storage class in your cluster
+  # annotations:
+  #  volume.beta.kubernetes.io/storage-class: "aws-efs"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: sal-postgres
+  namespace: sal
+  labels:
+    app: sal-db
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: sal-db
+        tier: postgres
+    spec:
+      containers:
+      - image: postgres:9.6
+        name: sal-postgres
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sal-db
+              key: POSTGRES_PASSWORD
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+        - name: postgres-persistent-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-persistent-storage
+        persistentVolumeClaim:
+          claimName: sal-postgres-pv-claim
