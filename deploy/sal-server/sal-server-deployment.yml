@@ -72,4 +72,4 @@ spec:
         - containerPort: 8000
         resources:
           limits:
-            memory: 512Mi
+            memory: 1Gi
